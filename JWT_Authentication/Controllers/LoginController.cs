@@ -18,16 +18,16 @@ namespace JWT_Authentication.Controllers
         {
             _config = configuration;
         }
-        private Users AuthenticateUsers(Users user)
+        private User AuthenticateUsers(User user)
         {
-            Users _user = null;
+            User _user = null;
             if(user.Username == "admin" && user.Password == "1234")
             {
-                _user = new Users { Username = "Anupam Hossain" };
+                _user = new User { Username = "Anupam Hossain" };
             }
             return _user;
         }
-        private string GenerateToken(Users users)
+        private string GenerateToken(User users)
         {
             var claims = new List<Claim>
             {
@@ -48,7 +48,7 @@ namespace JWT_Authentication.Controllers
 
         [AllowAnonymous]
         [HttpPost]
-        public IActionResult Login(Users user)
+        public IActionResult Login(User user)
         {
             IActionResult response = Unauthorized();
             var user_ = AuthenticateUsers(user);
