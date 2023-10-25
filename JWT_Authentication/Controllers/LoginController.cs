@@ -20,17 +20,18 @@ namespace JWT_Authentication.Controllers
             _config = configuration;
             _dbContext = dbContext;
         }
-        private User AuthenticateUsers(User user)
+        private User AuthenticateUsers(LoginUser user)
         {
             //check if user exist or not
-            var existingUser = _dbContext.Users.Where(u => u.Username == user.Username && u.Password == user.Password).FirstOrDefault();
+            var existingUser = _dbContext.Users.Where(u => u.Username == user.Username.Trim() && u.Password == user.Password.Trim()).FirstOrDefault();
             return existingUser;
         }
-        private string GenerateToken(User users)
+        private string GenerateToken(User user)
         {
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Sub, users.Username),
+                new Claim(JwtRegisteredClaimNames.Name, user.firstName+" "+user.lastName),
+                new Claim(JwtRegisteredClaimNames.Sub, user.Username),
                 new Claim(JwtRegisteredClaimNames.Iss, _config["jwt:Issuer"]),
                 new Claim(JwtRegisteredClaimNames.Aud, _config["jwt:Audience"])
             };
@@ -47,17 +48,18 @@ namespace JWT_Authentication.Controllers
 
         [AllowAnonymous]
         [HttpPost]
-        public IActionResult Login(User user)
+        public IActionResult Login(LoginUser user)
         {
             IActionResult response = Unauthorized();
             var user_ = AuthenticateUsers(user);
             if(user_ != null)
             {
-                var token = GenerateToken(user_);
+                var _token = GenerateToken(user_);
                 response = Ok(new 
-                { 
-                    token = token, 
-                    user = user_.Username 
+                {
+                    fullname = user_.firstName+" "+user_.lastName,
+                    username = user_.Username,
+                    token = _token
                 });
                 return response;
             }

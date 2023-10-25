@@ -21,7 +21,7 @@ namespace JWT_Authentication.Controllers
         {
             try
             {
-                var existingUser = _dbContext.Users.Where(u => u.Username == _user.Username).FirstOrDefault(); //it almost like SELECT * FROM Users WHERE u.Username == _user.Username. The FirstOrDefault() method indicates that we will take the first value & if there is only null value, we will also take it.
+                var existingUser = _dbContext.Users.Where(u => u.Username == _user.Username.Trim()).FirstOrDefault(); //it almost like SELECT * FROM Users WHERE u.Username == _user.Username. The FirstOrDefault() method indicates that we will take the first value & if there is only null value, we will also take it.
                 if (existingUser != null)
                 {
                     return BadRequest(new { msg = "user already exist" });
@@ -30,7 +30,9 @@ namespace JWT_Authentication.Controllers
                 {
                     User newUser = new User //create a new User class
                     {
-                        Username = _user.Username,
+                        firstName = _user.firstName.Trim(),
+                        lastName = _user.lastName.Trim(),
+                        Username = _user.Username.Trim(),
                         Password = _user.Password
                     };
                     _dbContext.Users.Add(newUser);
