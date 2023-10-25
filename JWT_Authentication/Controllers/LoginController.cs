@@ -13,19 +13,18 @@ namespace JWT_Authentication.Controllers
     [ApiController]
     public class LoginController : ControllerBase
     {
+        DBContext _dbContext;
         private IConfiguration _config;
-        public LoginController(IConfiguration configuration)
+        public LoginController(IConfiguration configuration, DBContext dbContext)
         {
             _config = configuration;
+            _dbContext = dbContext;
         }
         private User AuthenticateUsers(User user)
         {
-            User _user = null;
-            if(user.Username == "admin" && user.Password == "1234")
-            {
-                _user = new User { Username = "Anupam Hossain" };
-            }
-            return _user;
+            //check if user exist or not
+            var existingUser = _dbContext.Users.Where(u => u.Username == user.Username && u.Password == user.Password).FirstOrDefault();
+            return existingUser;
         }
         private string GenerateToken(User users)
         {
@@ -55,9 +54,17 @@ namespace JWT_Authentication.Controllers
             if(user_ != null)
             {
                 var token = GenerateToken(user_);
-                response = Ok(new { token = token, user = user_.Username });
+                response = Ok(new 
+                { 
+                    token = token, 
+                    user = user_.Username 
+                });
+                return response;
             }
-            return response;
+            else
+            {
+                return BadRequest(new {msg = "invalid username or password"});
+            }
         }
     }
 }
