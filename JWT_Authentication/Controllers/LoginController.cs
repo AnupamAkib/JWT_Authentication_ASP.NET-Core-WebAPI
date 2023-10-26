@@ -6,6 +6,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using System.Security.Claims;
+using JWT_Authentication.Payload.Request;
+using JWT_Authentication.Payload.Response;
 
 namespace JWT_Authentication.Controllers
 {
@@ -20,7 +22,7 @@ namespace JWT_Authentication.Controllers
             _config = configuration;
             _dbContext = dbContext;
         }
-        private User AuthenticateUsers(LoginUser user)
+        private User AuthenticateUsers(LoginRequest user)
         {
             //check if user exist or not
             var existingUser = _dbContext.Users.Where(u => u.Username == user.Username.Trim() && u.Password == user.Password.Trim()).FirstOrDefault();
@@ -48,20 +50,19 @@ namespace JWT_Authentication.Controllers
 
         [AllowAnonymous]
         [HttpPost]
-        public IActionResult Login(LoginUser user)
+        public IActionResult Login(LoginRequest user)
         {
-            IActionResult response = Unauthorized();
             var user_ = AuthenticateUsers(user);
             if(user_ != null)
             {
                 var _token = GenerateToken(user_);
-                response = Ok(new 
+                LoginResponse loginResponse = new LoginResponse
                 {
-                    fullname = user_.firstName+" "+user_.lastName,
-                    username = user_.Username,
-                    token = _token
-                });
-                return response;
+                    FullName = user_.firstName + " " + user_.lastName,
+                    Username = user_.Username,
+                    Token = _token
+                };
+                return Ok(loginResponse);
             }
             else
             {

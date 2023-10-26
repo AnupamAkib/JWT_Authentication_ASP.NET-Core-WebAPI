@@ -1,6 +1,7 @@
 ﻿using JWT_Authentication.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 
 namespace JWT_Authentication.Controllers
 {
@@ -9,10 +10,12 @@ namespace JWT_Authentication.Controllers
     public class RegistrationController : ControllerBase
     {
         DBContext _dbContext;
+        TextInfo textInfo;
 
         public RegistrationController(DBContext dbContext)
         {
             _dbContext = dbContext;
+            textInfo = new CultureInfo("en-US", false).TextInfo; //for upper casing first char in each word
         }
 
         [HttpPost]
@@ -30,8 +33,8 @@ namespace JWT_Authentication.Controllers
                 {
                     User newUser = new User //create a new User class
                     {
-                        firstName = _user.firstName.Trim(),
-                        lastName = _user.lastName.Trim(),
+                        firstName = textInfo.ToTitleCase(_user.firstName.Trim().ToLower()),
+                        lastName = textInfo.ToTitleCase(_user.lastName.Trim().ToLower()),
                         Username = _user.Username.Trim(),
                         Password = _user.Password
                     };

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace JWT_Authentication.Controllers
 {
@@ -8,12 +9,21 @@ namespace JWT_Authentication.Controllers
     [ApiController]
     public class EmployeeController : ControllerBase
     {
-        [Authorize]
+        [Authorize] //use this tag when you need the authorization to access
         [HttpGet]
         [Route("getData")]
         public IActionResult getData()
         {
-            return Ok("you are authorized!!! Now you can access the data.");
+            var userFullName = User.FindFirst(claim => claim.Type == "name")?.Value;
+            if (userFullName == null)
+            {
+                return Unauthorized(new {status = "failed", msg = "Sorry, you are unauthorized"});
+            }
+            return Ok(new
+            {
+                status = "success",
+                msg = $"Hello {userFullName}, you are authorized!!"
+            });
         }
 
         [HttpGet]
